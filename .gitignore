@@ -1,0 +1,7 @@
+MenuBarRecorder
+MenuBarRecorder.app
+.DS_Store
+*.o
+.build
+test*
+build_clean.sh
