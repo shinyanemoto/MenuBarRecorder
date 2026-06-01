@@ -6,11 +6,11 @@ A simple, lightweight macOS Menu Bar application for recording voice memos.
 
 - **Menu Bar Access**: Runs discreetly in the menu bar with a microphone icon.
 - **Quick Recording**:
-  - Start Recording: Click "Start Recording" or use `Cmd+S`.
-  - Stop Recording: Click "Stop Recording" or use `Cmd+T`.
+  - Start Recording: Click "Start Recording" or use `Cmd+R`.
+  - Stop Recording: Click "Stop Recording" or use `Cmd+R`.
 - **Status Indication**:
-  - **■ Ready**: Not recording.
-  - **● Rec** (Red): Currently recording.
+  - A single menu bar icon is always shown.
+  - The icon turns red while recording.
 - **Auto-Saving**: Recordings are automatically saved as AAC (`.m4a`) files in `~/Documents/VoiceMemos/`.
   - Filenames include the date and time (e.g., `Recording_2025-01-01_12-00-00.m4a`).
 - **Open Folder**: Quickly access your recordings via the "Open Voice Memos Folder" menu item.
@@ -58,11 +58,11 @@ When you first record audio, macOS will prompt you to grant microphone access to
 
 - **メニューバー常駐**: マイクアイコンとともにメニューバーで控えめに動作します。
 - **クイック録音**:
-  - 録音開始: 「Start Recording」をクリックするか、`Cmd+S` を使用します。
-  - 録音停止: 「Stop Recording」をクリックするか、`Cmd+T` を使用します。
+  - 録音開始: 「Start Recording」をクリックするか、`Cmd+R` を使用します。
+  - 録音停止: 「Stop Recording」をクリックするか、`Cmd+R` を使用します。
 - **ステータス表示**:
-  - **■ Ready**: 録音待機中。
-  - **● Rec** (赤色): 録音中。
+  - メニューバーには常に1つのアイコンのみ表示されます。
+  - 録音中はアイコンが赤色に変わります。
 - **自動保存**: 録音データは AAC (`.m4a`) 形式で `~/Documents/VoiceMemos/` に自動保存されます。
   - ファイル名には日時が含まれます（例: `Recording_2025-01-01_12-00-00.m4a`）。
 - **フォルダを開く**: 「Open Voice Memos Folder」メニュー項目から保存先フォルダへ素早くアクセスできます。

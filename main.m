@@ -5,23 +5,14 @@
     : NSObject <NSApplicationDelegate, AVAudioRecorderDelegate>
 @property(strong) NSStatusItem *statusItem;
 @property(strong) AVAudioRecorder *audioRecorder;
-@property(strong) NSMenuItem *startMenuItem;
-@property(strong) NSMenuItem *stopMenuItem;
+@property(strong) NSMenuItem *toggleRecordingMenuItem;
 @end
 
 @implementation AppController
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
   self.statusItem = [[NSStatusBar systemStatusBar]
-      statusItemWithLength:NSVariableStatusItemLength];
-  NSImage *image = [NSImage imageWithSystemSymbolName:@"mic"
-                             accessibilityDescription:@"Recording"];
-  if (image) {
-    image.template = YES;
-    self.statusItem.button.image = image;
-  } else {
-    self.statusItem.button.title = @"Rec";
-  }
+      statusItemWithLength:NSSquareStatusItemLength];
 
   [self updateStatusIcon:NO];
   [self setupMenu];
@@ -31,18 +22,12 @@
 - (void)setupMenu {
   NSMenu *menu = [[NSMenu alloc] init];
 
-  self.startMenuItem =
+  self.toggleRecordingMenuItem =
       [[NSMenuItem alloc] initWithTitle:@"Start Recording"
-                                 action:@selector(startRecording)
-                          keyEquivalent:@"s"];
-  [self.startMenuItem setTarget:self];
-  [menu addItem:self.startMenuItem];
-
-  self.stopMenuItem = [[NSMenuItem alloc] initWithTitle:@"Stop Recording"
-                                                 action:@selector(stopRecording)
-                                          keyEquivalent:@"t"];
-  [self.stopMenuItem setTarget:self];
-  [menu addItem:self.stopMenuItem];
+                                 action:@selector(toggleRecording)
+                          keyEquivalent:@"r"];
+  [self.toggleRecordingMenuItem setTarget:self];
+  [menu addItem:self.toggleRecordingMenuItem];
 
   [menu addItem:[NSMenuItem separatorItem]];
 
@@ -66,32 +51,49 @@
 }
 
 - (void)updateStatusIcon:(BOOL)isRecording {
+  self.statusItem.length = NSSquareStatusItemLength;
+
+  NSString *symbolName = isRecording ? @"record.circle.fill" : @"mic.fill";
+  NSString *accessibilityDescription = isRecording ? @"Recording" : @"Ready";
+  NSImage *image =
+      [NSImage imageWithSystemSymbolName:symbolName
+               accessibilityDescription:accessibilityDescription];
+
+  self.statusItem.button.title = @"";
   if (isRecording) {
-    NSImage *image = [NSImage imageWithSystemSymbolName:@"record.circle"
-                               accessibilityDescription:@"Recording"];
     if (image) {
       image.template = YES;
       self.statusItem.button.image = image;
     } else {
-      self.statusItem.button.title = @"● Rec";
+      self.statusItem.length = NSVariableStatusItemLength;
+      self.statusItem.button.image = nil;
+      self.statusItem.button.title = @"●";
     }
     self.statusItem.button.contentTintColor = [NSColor systemRedColor];
   } else {
-    NSImage *image = [NSImage imageWithSystemSymbolName:@"mic"
-                               accessibilityDescription:@"Ready"];
     if (image) {
       image.template = YES;
       self.statusItem.button.image = image;
     } else {
-      self.statusItem.button.title = @"■ Ready";
+      self.statusItem.length = NSVariableStatusItemLength;
+      self.statusItem.button.image = nil;
+      self.statusItem.button.title = @"■";
     }
     self.statusItem.button.contentTintColor = [NSColor labelColor];
   }
 }
 
 - (void)updateMenuState:(BOOL)isRecording {
-  [self.startMenuItem setEnabled:!isRecording];
-  [self.stopMenuItem setEnabled:isRecording];
+  self.toggleRecordingMenuItem.title =
+      isRecording ? @"Stop Recording" : @"Start Recording";
+}
+
+- (void)toggleRecording {
+  if (self.audioRecorder && [self.audioRecorder isRecording]) {
+    [self stopRecording];
+  } else {
+    [self startRecording];
+  }
 }
 
 - (void)

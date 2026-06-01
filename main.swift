@@ -4,6 +4,7 @@ import AVFoundation
 class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegate {
     var statusItem: NSStatusItem!
     var audioRecorder: AVAudioRecorder?
+    var toggleRecordingMenuItem: NSMenuItem!
     
     // 保存先フォルダ: Documents/VoiceMemos
     let saveFolder: URL = {
@@ -14,7 +15,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegate {
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         // ステータスバーアイテムの作成
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         
         // 保存先ディレクトリの作成
         try? FileManager.default.createDirectory(at: saveFolder, withIntermediateDirectories: true, attributes: nil)
@@ -38,25 +39,30 @@ class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegate {
 
     func updateMenu(isRecording: Bool) {
         if let button = statusItem.button {
-            // 状態表示: ● (録音中) / ■ (停止中)
-            button.title = isRecording ? "● Rec" : "■ Ready"
-            // 赤色などで目立たせることも可能ですが、標準のテキスト色にします
-            if isRecording {
-                button.contentTintColor = .red
+            statusItem.length = NSStatusItem.squareLength
+            button.title = ""
+
+            let symbolName = isRecording ? "record.circle.fill" : "mic.fill"
+            if let image = NSImage(systemSymbolName: symbolName, accessibilityDescription: isRecording ? "Recording" : "Ready") {
+                image.isTemplate = true
+                button.image = image
             } else {
-                button.contentTintColor = nil
+                statusItem.length = NSStatusItem.variableLength
+                button.image = nil
+                button.title = isRecording ? "●" : "■"
             }
+
+            button.contentTintColor = isRecording ? .systemRed : nil
         }
         
         let menu = NSMenu()
         
-        let startItem = NSMenuItem(title: "Start Recording", action: #selector(startRecording), keyEquivalent: "s")
-        if isRecording { startItem.isHidden = true }
-        menu.addItem(startItem)
-        
-        let stopItem = NSMenuItem(title: "Stop Recording", action: #selector(stopRecording), keyEquivalent: "t")
-        if !isRecording { stopItem.isHidden = true }
-        menu.addItem(stopItem)
+        toggleRecordingMenuItem = NSMenuItem(
+            title: isRecording ? "Stop Recording" : "Start Recording",
+            action: #selector(toggleRecording),
+            keyEquivalent: "r"
+        )
+        menu.addItem(toggleRecordingMenuItem)
         
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Open Folder", action: #selector(openFolder), keyEquivalent: "o"))
@@ -64,6 +70,14 @@ class AppDelegate: NSObject, NSApplicationDelegate, AVAudioRecorderDelegate {
         menu.addItem(NSMenuItem(title: "Quit", action: #selector(quit), keyEquivalent: "q"))
         
         statusItem.menu = menu
+    }
+
+    @objc func toggleRecording() {
+        if audioRecorder?.isRecording == true {
+            stopRecording()
+        } else {
+            startRecording()
+        }
     }
 
     @objc func startRecording() {
